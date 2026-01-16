@@ -62,93 +62,170 @@ QUESTION 2: Jenkins CI (Freestyle Job) – Simple Steps
 Aim
 Jenkins pulls website code from GitHub and triggers build automatically on push.
 
-# ================================
-# CONTINUOUS INTEGRATION USING JENKINS
-# UBUNTU + GITHUB (FULL CODE FORMAT)
-# ================================
 
-# -------- STEP 1: INSTALL JAVA --------
+## QUESTION 2: Jenkins CI using WAR + Freestyle Job + Poll SCM (*****)
+
+###  Aim
+Configure Jenkins Freestyle Job that automatically pulls website code from GitHub and builds the project whenever a change is pushed (using Poll SCM schedule `* * * * *`).
+
+---
+
+# PART A: Jenkins Installation using WAR (JDK 21)
+
+##  Step 1: Install Java 21
+
 sudo apt update
-sudo apt install openjdk-11-jdk -y
+sudo apt install openjdk-21-jdk -y
 java -version
 
-# -------- STEP 2: INSTALL JENKINS --------
-curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
-/usr/share/keyrings/jenkins-keyring.asc > /dev/null
 
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-https://pkg.jenkins.io/debian binary/ | sudo tee \
-/etc/apt/sources.list.d/jenkins.list > /dev/null
+## Step 2: Download Jenkins WAR file
 
-sudo apt update
-sudo apt install jenkins -y
+mkdir -p ~/jenkins
+cd ~/jenkins
+wget https://get.jenkins.io/war-stable/latest/jenkins.war
+ls
 
-sudo systemctl start jenkins
-sudo systemctl enable jenkins
-sudo systemctl status jenkins
 
-# -------- STEP 3: GET JENKINS PASSWORD --------
-sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+## Step 3: Run Jenkins WAR
 
-# Open browser and complete setup:
-# URL: http://localhost:8080
-# Paste password → Install Suggested Plugins → Create Admin User
+java -jar jenkins.war --httpPort=8080
 
-# -------- STEP 4: CREATE STUDENT PORTAL WEBSITE --------
-mkdir student-portal
-cd student-portal
+ Jenkins will run at:
 
-cat <<EOF > index.html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Student Portal</title>
-</head>
-<body>
-    <h1>Welcome to Student Portal</h1>
-    <p>This is the college student portal website.</p>
-</body>
-</html>
-EOF
+http://localhost:8080
 
-# -------- STEP 5: PUSH WEBSITE TO GITHUB --------
-# (Make sure you already created an empty GitHub repo)
 
-git init
+##  Step 4: Unlock Jenkins
+
+In new terminal:
+
+cat ~/.jenkins/secrets/initialAdminPassword
+
+Paste it in Jenkins setup page → Install Suggested Plugins → Create Admin user.
+
+---
+
+# PART B: Jenkins Freestyle Job Setup
+
+## Step 5: Create Freestyle Job
+
+Jenkins Dashboard → **New Item**
+Select: **Freestyle project**
+Name: `student-portal-ci`
+Click: **OK**
+
+---
+
+##  Step 6: Add GitHub Credentials (GLOBAL)
+
+Jenkins Dashboard →
+**Manage Jenkins → Credentials → (global) → Add Credentials**
+
+Fill:
+
+* Kind: **Username with password**
+* Scope: **Global**
+* Username: GitHub Username
+* Password: GitHub Password / Token
+* ID: `github-cred`
+* Description: GitHub Credentials
+
+Click  Save
+
+---
+
+##  Step 7: Configure GitHub Repository in Job
+
+Job → Configure → **Source Code Management**
+
+ Select: Git
+Repository URL:
+
+https://github.com/<your-username>/<repo-name>.git
+
+
+Credentials:
+Select: `github-cred`
+
+Branch:
+*/main
+
+---
+
+#  PART C: Poll SCM Trigger (*****)
+
+## Step 8: Enable Poll SCM
+
+Job → Configure → **Build Triggers**
+
+ Tick: **Poll SCM**
+
+In Schedule box paste:
+* * * * *
+
+
+ Meaning: Jenkins checks GitHub every **1 minute** for changes.
+
+---
+
+# PART D: Build Steps (Execute Shell)
+
+##  Step 9: Add Build Step → Execute Shell
+
+Job → Configure → **Build Steps**
+Click: **Add build step**
+Select: **Execute shell**
+
+Paste this command:
+echo "Starting Student Portal Jenkins"
+echo "Build Time"
+date
+echo "Current Directory"
+pwd
+echo "Files in Workspace"
+ls -la
+echo "Build Completed Successfully"
+
+
+Click  Save
+
+---
+
+# PART E: Test (Auto Build)
+
+##  Step 10: First Manual Build
+
+Job page → Click:  **Build Now**
+Then check:  **Console Output**
+
+---
+
+##  Step 11: Make Change + Push to GitHub (Trigger Build Automatically)
+
+Edit HTML file (example):
+
+bash
+nano index.html
+
+
+Make small change and push:
+
+bash
 git add .
-git commit -m "Initial student portal website"
-git branch -M main
-git remote add origin https://github.com/USERNAME/student-portal.git
-git push -u origin main
-
-# -------- STEP 6: CONFIGURE JENKINS FREESTYLE JOB --------
-# Jenkins Dashboard → New Item
-# Name: student-portal-ci
-# Type: Freestyle Project
-
-# Source Code Management:
-# Git
-# Repository URL: https://github.com/USERNAME/student-portal.git
-
-# Build Triggers:
-# ☑ GitHub hook trigger for GITScm polling
-
-# Build Step:
-# Execute Shell:
-# cat index.html
-
-# Save the Job
-
-# -------- STEP 7: MAKE CHANGE TO HTML (CI TEST) --------
-sed -i 's/college student portal website/UPDATED student portal website/' index.html
-
-git add index.html
-git commit -m "Updated homepage content"
+git commit -m "Updated HTML page"
 git push origin main
 
-# RESULT:
-# GitHub push → Jenkins automatically triggers new build
-# Build console shows updated HTML output
+
+Within 1 minute, Jenkins will automatically trigger build because Poll SCM is `* * * * *`.
+
+---
+
+### Result
+
+Jenkins Freestyle Job successfully configured using WAR installation, GitHub global credentials, Poll SCM trigger (`* * * * *`) and Execute Shell build step. Auto build is triggered whenever changes are pushed to GitHub.
+
+
 
 
 
