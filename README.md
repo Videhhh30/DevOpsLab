@@ -148,69 +148,90 @@ docker rmi mywebapp:1.0
 
 
 
-QUESTION 4: Kubernetes (Deployment + Service YAML FULL)
+## ✅ Question 4: Deploy Docker Image on Kubernetes (Minikube) + NodePort + Scale
 
-Aim
-Deploy Docker image in Kubernetes and expose it using NodePort, then scale replicas.
+### 🎯 Aim
+Deploy the previously created Docker image on Kubernetes using a Deployment YAML file. Verify the pod is running, expose the app using a NodePort service, access it using node IP + port, and scale the deployment to 3 replicas.
 
-Step 1: Start minikube
-minikube start
+---
 
-Step 2: Use minikube docker and build image
-eval $(minikube docker-env)
-docker build -t mywebapp:1.0 .
+### ✅ Step 1: Verify Docker Image
+Check that your Docker image is available (example: `app:1.0`):
 
-Step 3: deployment.yaml (FULL)
-nano deployment.yaml
+docker images
+Step 2: Start Minikube using Docker Driver
+minikube start --driver=docker
+
+
+(If memory warning occurs, use lower memory)
+
+minikube start --driver=docker --memory=2048
+
+✅ Step 3: Load Docker Image into Minikube
+minikube image load app:1.0
+
+✅ Step 4: Create Deployment YAML (app.yaml)
+
+Create file:
+
+sudo nano app.yaml
+
+
+Paste this content:
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
- name: webapp-deployment
+  name: app-deploy
 spec:
- replicas: 1
- selector:
- matchLabels:
- app: webapp
- template:
- metadata:
- labels:
- app: webapp
- spec:
- containers:
- - name: webapp
- image: mywebapp:1.0
- imagePullPolicy: Never
- ports:
- - containerPort: 80
-   
-Step 4: Apply + verify
-kubectl apply -f deployment.yaml
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: app:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+
+✅ Step 5: Apply Deployment
+kubectl apply -f app.yaml
+
+✅ Step 6: Verify Pod and Deployment
 kubectl get pods
+kubectl get deployments
 
-Step 5: service.yaml (FULL)
-nano service.yaml
-apiVersion: v1
-kind: Service
-metadata:
- name: webapp-service
-spec:
- type: NodePort
- selector:
- app: webapp
- ports:
- - port: 80
- targetPort: 80
- nodePort: 30007
+✅ Step 7: Expose Application (NodePort Service)
+kubectl expose deployment app-deploy --type=NodePort --port=80
 
-Step 6: Apply service + access
-kubectl apply -f service.yaml
+
+⚠️ If you get error: services "app-deploy" already exists, it means service is already created. Just check service using:
+
 kubectl get svc
-minikube ip
-Open: http://<minikube-ip>:30007
 
-Step 7: Scale to 3
-kubectl scale deployment webapp-deployment --replicas=3
+✅ Step 8: Get Service URL and Access Application
+kubectl get svc
+minikube service app-deploy --url
+
+
+Open the shown URL in browser (example):
+
+http://127.0.0.1:43749
+
+
+⚠️ Note: When using docker driver, keep terminal open while accessing service.
+
+✅ Step 9: Scale Deployment to 3 Replicas
+kubectl scale deployment app-deploy --replicas=3
 kubectl get pods
+
+
 
 
 
