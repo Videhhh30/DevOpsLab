@@ -595,26 +595,26 @@ Raw dataset is tracked using DVC, processed dataset is generated using reproduci
 
 Questions 8:
 
-import mlflow
 from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+import mlflow
 
 X, y = load_iris(return_X_y=True)
-Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+# C values between 0.1 and 1.0
 for c in [0.1, 1.0]:
     with mlflow.start_run():
         m = LogisticRegression(C=c, max_iter=200)
-        m.fit(Xtr, ytr)
+        m.fit(X_train, y_train)
 
-        acc = accuracy_score(yte, m.predict(Xte))
+        acc_score = accuracy_score(y_test, m.predict(X_test))
 
         mlflow.log_param("C", c)
-        mlflow.log_metric("accuracy", acc)
+        mlflow.log_metric("accuracy", acc_score)
         mlflow.sklearn.log_model(m, "model")
-
 
 
 then run the python code and after that run mlflow ui and click the link it shows
@@ -624,39 +624,39 @@ then run the python code and after that run mlflow ui and click the link it show
 
 Question 9:
 
-import numpy as np
-import time
-from sklearn.linear_model import LinearRegression
-from skl2onnx import to_onnx
-import onnxruntime as ort
+# Train a model, Export it to ONNX, Runtime Session, Benchmark
 
-# 1. Train scikit-learn model
+from sklearn.linear_model import LinearRegression
+import numpy as np
+
 X = np.random.rand(1000, 1)
-y = 3 * X.squeeze() + 5
+y = 3 * X + 5
 
 model = LinearRegression()
 model.fit(X, y)
 
-# 2. Export model to ONNX
+from skl2onnx import to_onnx
+
 onnx_model = to_onnx(model, X)
+
 with open("model.onnx", "wb") as f:
     f.write(onnx_model.SerializeToString())
 
-# 3. Create ONNX Runtime session
+import onnxruntime as ort
+
 sess = ort.InferenceSession("model.onnx")
 
-# 4. Benchmark scikit-learn
+import time
+
 t0 = time.time()
 for _ in range(10000):
     model.predict(X)
-sk_time = time.time() - t0
+sktime = time.time() - t0
 
-# 5. Benchmark ONNX Runtime
 t0 = time.time()
 for _ in range(10000):
     sess.run(None, {"X": X})
-onnx_time = time.time() - t0
+onnxTime = time.time() - t0
 
-# 6. Print results
-print("scikit-learn time:", sk_time)
-print("ONNX Runtime time:", onnx_time)
+print("Scikit-Learn time:", sktime)
+print("ONNX time:", onnxTime)
