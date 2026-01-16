@@ -323,6 +323,92 @@ Step 9: Scale Deployment to 3 Replicas
 kubectl scale deployment app-deploy --replicas=3
 kubectl get pods
 
+ANOTHER METHOD 
+
+# -------------------------------
+# QUESTION 4 : Docker -> Kubernetes (Minikube)
+# -------------------------------
+
+# 1) Create folder
+mkdir mlops
+cd mlops
+
+# 2) Create HTML file
+gedit html.html
+# PASTE THIS:
+# <h1> Hello From Docker </h1>
+
+# 3) Create Dockerfile
+gedit Dockerfile
+# PASTE THIS:
+# FROM nginx:latest
+# COPY html.html /usr/share/nginx/html/
+
+# 4) Build Docker image
+docker build -t app:1.0 .
+
+# 5) Check image
+docker images
+
+# 6) Start Minikube (Docker driver)
+minikube start --driver=docker
+
+# (If memory warning comes, run this instead)
+# minikube start --driver=docker --memory=2048
+
+# 7) Load docker image into minikube
+minikube image load app:1.0
+
+# 8) Create Deployment YAML file
+gedit app.yaml
+
+# PASTE THIS FULL YAML:
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: app-deploy
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: myapp
+#   template:
+#     metadata:
+#       labels:
+#         app: myapp
+#     spec:
+#       containers:
+#       - name: app
+#         image: app:1.0
+#         imagePullPolicy: Never
+
+# 9) Apply YAML
+kubectl apply -f app.yaml
+
+# 10) Check pods and deployments
+kubectl get pods
+kubectl get deployments
+
+# 11) Expose deployment (NodePort Service)
+kubectl expose deployment app-deploy --type=NodePort --port=80
+
+# If service already exists error comes, ignore and continue
+kubectl get svc
+
+# 12) Get URL and access application
+minikube service app-deploy --url
+
+# NOTE:
+# If using docker driver, keep terminal open while accessing URL in browser.
+
+# 13) Scale replicas to 3
+kubectl scale deployment app-deploy --replicas=3
+
+# 14) Verify scaled pods
+kubectl get pods
+
+# IMPORTANT:
+# If you typed kubectle by mistake, correct command is kubectl
 
 
 
