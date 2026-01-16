@@ -161,92 +161,70 @@ Create a simple web application (HTML), write a Dockerfile, build a Docker image
 
 ---
 
- Complete Steps (Copy-Paste)
+# ==========================================
+# CREATE SIMPLE WEB APPLICATION USING DOCKER
+# ==========================================
 
-### 1) Start and Enable Docker
+# ---------- STEP 1: CHECK & INSTALL DOCKER ----------
+docker --version
+
+# If Docker is NOT installed
+sudo apt update
+sudo apt install docker.io -y
 
 sudo systemctl start docker
 sudo systemctl enable docker
-docker --version
 
-2) Create Project Folder + Files
-mkdir appDocker
-cd appDocker
+# ---------- STEP 2: CREATE PROJECT DIRECTORY ----------
+mkdir html-app
+cd html-app
 
-
-Create HTML file:
-
-sudo nano index.html
-
-
-Paste this in index.html:
-
+# ---------- STEP 3: CREATE HTML FILE ----------
+cat <<EOF > index.html
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Docker Web App</title>
+    <title>Docker Web App</title>
 </head>
 <body>
-  <h1>Hello from Docker HTML App!</h1>
+    <h1>Hello from Docker!</h1>
+    <p>This web app is running inside a Docker container.</p>
 </body>
 </html>
+EOF
 
-
-Create Dockerfile:
-
-sudo nano Dockerfile
-
-
-Paste this in Dockerfile:
-
-FROM nginx:alpine
+# ---------- STEP 4: CREATE DOCKERFILE ----------
+cat <<EOF > Dockerfile
+FROM nginx:latest
 COPY index.html /usr/share/nginx/html/index.html
-EXPOSE 80
+EOF
 
+# ---------- STEP 5: BUILD DOCKER IMAGE ----------
+sudo docker build -t html-app:1.0 .
 
-Check files:
+# ---------- STEP 6: LIST DOCKER IMAGES ----------
+sudo docker images
 
-ls
+# ---------- STEP 7: RUN DOCKER CONTAINER (PORT MAPPING) ----------
+sudo docker run -d -p 8080:80 --name html-container html-app:1.0
 
-3) Build Docker Image
+# Open browser and access:
+# http://localhost:8080
 
-Docker image tag must be lowercase:
+# ---------- STEP 8: LIST RUNNING CONTAINERS ----------
+sudo docker ps
 
-docker build -t htmlapp:1.0 .
+# ---------- STEP 9: LIST ALL CONTAINERS ----------
+sudo docker ps -a
 
+# ---------- STEP 10: STOP RUNNING CONTAINER ----------
+sudo docker stop html-container
 
-Verify image:
+# ---------- STEP 11: REMOVE CONTAINER ----------
+sudo docker rm html-container
 
-docker images
-
-4) Run Docker Container (Port Mapping)
-docker run -d -p 8081:80 --name html-container htmlapp:1.0
-
-
-Check running container:
-
-docker ps
-
-
-Open in browser:
-
-http://localhost:8081
-
-5) Stop and Remove Container + Image
-
-Stop container:
-
-docker stop html-container
-
-
-Remove container:
-
-docker rm html-container
-
-
-Remove image:
-
-docker rmi htmlapp:1.0
+# ---------- STEP 12: REMOVE DOCKER IMAGE ----------
+sudo docker rmi html-app:1.0
 
  Result
 
