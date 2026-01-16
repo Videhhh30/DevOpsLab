@@ -107,14 +107,14 @@ Result: Jenkins starts build automatically
 
 
 
-## ✅ Question 3: Dockerize Simple Web Application (HTML) + Docker Commands
+Question 3: Dockerize Simple Web Application (HTML) + Docker Commands
 
-### 🎯 Aim
+ Aim
 Create a simple web application (HTML), write a Dockerfile, build a Docker image, run the container with port mapping, and perform Docker operations such as listing images/containers, stopping container, removing container and image.
 
 ---
 
-## ✅ Complete Steps (Copy-Paste)
+ Complete Steps (Copy-Paste)
 
 ### 1) Start and Enable Docker
 
@@ -163,7 +163,7 @@ ls
 
 3) Build Docker Image
 
-⚠️ Docker image tag must be lowercase:
+Docker image tag must be lowercase:
 
 docker build -t htmlapp:1.0 .
 
@@ -181,7 +181,7 @@ Check running container:
 docker ps
 
 
-✅ Open in browser:
+Open in browser:
 
 http://localhost:8081
 
@@ -201,7 +201,7 @@ Remove image:
 
 docker rmi htmlapp:1.0
 
-✅ Result
+ Result
 
 A simple HTML application is successfully containerized using Docker, executed using port mapping in browser, and Docker operations (list, stop, remove) are performed using Docker commands.
 
@@ -215,14 +215,14 @@ A simple HTML application is successfully containerized using Docker, executed u
 
 
 
-## ✅ Question 4: Deploy Docker Image on Kubernetes (Minikube) + NodePort + Scale
+##  Question 4: Deploy Docker Image on Kubernetes (Minikube) + NodePort + Scale
 
-### 🎯 Aim
+###  Aim
 Deploy the previously created Docker image on Kubernetes using a Deployment YAML file. Verify the pod is running, expose the app using a NodePort service, access it using node IP + port, and scale the deployment to 3 replicas.
 
 ---
 
-### ✅ Step 1: Verify Docker Image
+### Step 1: Verify Docker Image
 Check that your Docker image is available (example: `app:1.0`):
 
 docker images
@@ -234,10 +234,10 @@ minikube start --driver=docker
 
 minikube start --driver=docker --memory=2048
 
-✅ Step 3: Load Docker Image into Minikube
+ Step 3: Load Docker Image into Minikube
 minikube image load app:1.0
 
-✅ Step 4: Create Deployment YAML (app.yaml)
+ Step 4: Create Deployment YAML (app.yaml)
 
 Create file:
 
@@ -267,22 +267,22 @@ spec:
           ports:
             - containerPort: 80
 
-✅ Step 5: Apply Deployment
+ Step 5: Apply Deployment
 kubectl apply -f app.yaml
 
-✅ Step 6: Verify Pod and Deployment
+ Step 6: Verify Pod and Deployment
 kubectl get pods
 kubectl get deployments
 
-✅ Step 7: Expose Application (NodePort Service)
+ Step 7: Expose Application (NodePort Service)
 kubectl expose deployment app-deploy --type=NodePort --port=80
 
 
-⚠️ If you get error: services "app-deploy" already exists, it means service is already created. Just check service using:
+ If you get error: services "app-deploy" already exists, it means service is already created. Just check service using:
 
 kubectl get svc
 
-✅ Step 8: Get Service URL and Access Application
+Step 8: Get Service URL and Access Application
 kubectl get svc
 minikube service app-deploy --url
 
@@ -292,9 +292,9 @@ Open the shown URL in browser (example):
 http://127.0.0.1:43749
 
 
-⚠️ Note: When using docker driver, keep terminal open while accessing service.
+Note: When using docker driver, keep terminal open while accessing service.
 
-✅ Step 9: Scale Deployment to 3 Replicas
+Step 9: Scale Deployment to 3 Replicas
 kubectl scale deployment app-deploy --replicas=3
 kubectl get pods
 
@@ -409,14 +409,14 @@ Open: http://localhost:5000
 
 
 
-## ✅ Question 7: DVC Data Versioning + Pipeline (Raw → Processed) using dvc.yaml + dvc repro
+##  Question 7: DVC Data Versioning + Pipeline (Raw → Processed) using dvc.yaml + dvc repro
 
-### 🎯 Aim
+###  Aim
 Implement data ingestion, cleaning, and versioning using DVC by tracking raw and processed datasets, creating a reproducible pipeline with `dvc.yaml`, and validating reproducibility using `dvc repro`.
 
 ---
 
-## ✅ Complete Steps (Copy-Paste)
+##  Complete Steps (Copy-Paste)
 
 ### 1) Create Project Folder + Initialize Git and DVC
 mkdir ques7
@@ -476,7 +476,7 @@ df["marks"] = df["marks"] + 5
 # Save processed dataset
 df.to_csv("data/processed/clean.csv", index=False)
 
-print("✅ Cleaned dataset saved to data/processed/clean.csv")
+print(" Cleaned dataset saved to data/processed/clean.csv")
 
 
 Go back:
@@ -490,7 +490,7 @@ dvc stage add -n clean \
 python scripts/clean.py
 
 
-✅ This command will automatically create:
+This command will automatically create:
 
 dvc.yaml
 
