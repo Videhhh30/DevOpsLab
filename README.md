@@ -407,44 +407,114 @@ Open: http://localhost:5000
 
 
 
-QUESTION 7: DVC (FULL raw/processed pipeline)
 
-Aim
-Track datasets using DVC and reproduce pipeline using dvc repro.
 
-Step 1: Install DVC
-pip install dvc
+## ✅ Question 7: DVC Data Versioning + Pipeline (Raw → Processed) using dvc.yaml + dvc repro
 
-Step 2: Init project
-mkdir dvc-project
-cd dvc-project
+### 🎯 Aim
+Implement data ingestion, cleaning, and versioning using DVC by tracking raw and processed datasets, creating a reproducible pipeline with `dvc.yaml`, and validating reproducibility using `dvc repro`.
+
+---
+
+## ✅ Complete Steps (Copy-Paste)
+
+### 1) Create Project Folder + Initialize Git and DVC
+mkdir ques7
+cd ques7
+
 git init
 dvc init
 
-Step 3: Create raw dataset
-mkdir -p data
-nano data/raw.csv
+2) Create Raw Data Folder and Dataset
+mkdir data
+cd data
+
+mkdir raw
+cd raw
+
+
+Create raw CSV file:
+
+gedit data.csv
+
+
+Paste this inside data.csv:
+
 name,marks
 A,80
 B,90
+C,70
+D,85
 
-Step 4: Track raw with DVC
-dvc add data/raw.csv
-git add data/raw.csv.dvc .gitignore
-git commit -m "Track raw dataset"
 
-Step 5: Cleaning script (FULL)
-mkdir -p src
-nano src/clean.py
+Go back:
+
+cd ..
+mkdir processed
+cd ..
+
+3) Create Scripts Folder and Cleaning Script
+mkdir scripts
+cd scripts
+
+
+Create Python script:
+
+gedit clean.py
+
+
+Paste this inside clean.py:
+
 import pandas as pd
-df = pd.read_csv("data/raw.csv")
-df["marks"] = df["marks"] + 5
-df.to_csv("data/processed.csv", index=False)
-print("Processed dataset saved.")
 
-Step 6: Create DVC stage
-dvc stage add -n clean_data -d src/clean.py -d data/raw.csv -o data/processed.csv python src/cleanStep 7: Run repro
+# Read raw dataset
+df = pd.read_csv("data/raw/data.csv")
+
+# Cleaning / processing (example: add 5 marks)
+df["marks"] = df["marks"] + 5
+
+# Save processed dataset
+df.to_csv("data/processed/clean.csv", index=False)
+
+print("✅ Cleaned dataset saved to data/processed/clean.csv")
+
+
+Go back:
+
+cd ..
+
+4) Create DVC Stage (Pipeline)
+dvc stage add -n clean \
+-d scripts/clean.py -d data/raw/data.csv \
+-o data/processed/clean.csv \
+python scripts/clean.py
+
+
+✅ This command will automatically create:
+
+dvc.yaml
+
+dvc.lock
+
+5) Run Pipeline
 dvc repro
+
+6) Add DVC Files to Git and Commit
+git add dvc.yaml dvc.lock data/processed/.gitignore
+git commit -m "Added DVC pipeline for dataset cleaning"
+
+7) Check Files
+ls
+
+
+Expected:
+
+data  dvc.yaml  dvc.lock  scripts
+
+✅ Result
+
+Raw dataset is tracked using DVC, processed dataset is generated using reproducible DVC pipeline (dvc.yaml), and pipeline successfully runs using dvc repro.
+
 
 
 
