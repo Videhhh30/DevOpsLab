@@ -107,41 +107,108 @@ Result: Jenkins starts build automatically
 
 
 
-QUESTION 3: Docker Web App (FULL Dockerfile + commands)
+## ✅ Question 3: Dockerize Simple Web Application (HTML) + Docker Commands
 
-Aim
-Build and run a Docker container for a simple web app and use basic Docker commands.
+### 🎯 Aim
+Create a simple web application (HTML), write a Dockerfile, build a Docker image, run the container with port mapping, and perform Docker operations such as listing images/containers, stopping container, removing container and image.
 
-Step 1: Install Docker
-sudo apt update
-sudo apt install docker.io -y
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
-newgrp docker
+---
 
-Step 2: Create index.html
-mkdir docker-webapp
-cd docker-webapp
-nano index.html
-index.html content (FULL)
-<h1>Hello from Docker Web App!</h1>
+## ✅ Complete Steps (Copy-Paste)
 
-Step 3: Create Dockerfile (FULL)
-nano Dockerfile
-FROM nginx:latest
+### 1) Start and Enable Docker
+
+sudo systemctl start docker
+sudo systemctl enable docker
+docker --version
+
+2) Create Project Folder + Files
+mkdir appDocker
+cd appDocker
+
+
+Create HTML file:
+
+sudo nano index.html
+
+
+Paste this in index.html:
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Docker Web App</title>
+</head>
+<body>
+  <h1>Hello from Docker HTML App!</h1>
+</body>
+</html>
+
+
+Create Dockerfile:
+
+sudo nano Dockerfile
+
+
+Paste this in Dockerfile:
+
+FROM nginx:alpine
 COPY index.html /usr/share/nginx/html/index.html
 EXPOSE 80
 
-Step 4: Build + Run
-docker build -t mywebapp:1.0 .
-docker run -d -p 8081:80 --name web1 mywebapp:1.0
-Open: http://localhost:8081
-Docker commands
-docker ps
+
+Check files:
+
+ls
+
+3) Build Docker Image
+
+⚠️ Docker image tag must be lowercase:
+
+docker build -t htmlapp:1.0 .
+
+
+Verify image:
+
 docker images
-docker stop web1
-docker rm web1
-docker rmi mywebapp:1.0
+
+4) Run Docker Container (Port Mapping)
+docker run -d -p 8081:80 --name html-container htmlapp:1.0
+
+
+Check running container:
+
+docker ps
+
+
+✅ Open in browser:
+
+http://localhost:8081
+
+5) Stop and Remove Container + Image
+
+Stop container:
+
+docker stop html-container
+
+
+Remove container:
+
+docker rm html-container
+
+
+Remove image:
+
+docker rmi htmlapp:1.0
+
+✅ Result
+
+A simple HTML application is successfully containerized using Docker, executed using port mapping in browser, and Docker operations (list, stop, remove) are performed using Docker commands.
+
+
+
+
+
 
 
 
