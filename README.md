@@ -352,58 +352,132 @@ git commit -m "ML environment setup"
 
 QUESTION 6: Docker Compose (FULL app.py + Dockerfile + compose file)
 
-Aim
-Run multi-container app using Docker Compose (Flask app + Redis).
-Step 1: Create folder
-mkdir compose-app
-cd compose-app
+Redis Question (Docker Compose) – SAME steps as your screenshots (Copy Paste)
+# Install docker + docker-compose
+sudo apt update
+sudo apt install docker-compose docker.io -y
 
-Step 2: app.py (FULL)
-nano app.py
+# Start docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Create folder
+mkdir ques8
+cd ques8
+
+# Create required files
+gedit app.py
+gedit Dockerfile
+gedit docker-compose.yml
+
+1) app.py (PASTE THIS EXACTLY)
+
+Open app.py and paste:
+
 import redis
-from flask import Flask
-app = Flask(__name__)
-r = redis.Redis(host="redis", port=6379)
-@app.route("/")
-def home():
- r.incr("visits")
- return f"Visits: {r.get('visits').decode()}"
-if __name__ == "__main__":
- app.run(host="0.0.0.0", port=5000)
- 
-Step 3: requirements.txt (FULL)
-nano requirements.txt
-flask
-redis
 
-Step 4: Dockerfile (FULL)
-nano Dockerfile
+result = redis.Redis(host="redis", port=6379)
+result.incr("count")
+
+print("Count :", result.get("count").decode())
+
+
+Save and close.
+
+2) Dockerfile (PASTE THIS EXACTLY)
+
+Open Dockerfile and paste:
+
 FROM python:3.10
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install redis
 COPY app.py .
-EXPOSE 5000
 CMD ["python", "app.py"]
 
-Step 5: docker-compose.yml (FULL)
-nano docker-compose.yml
-version: "3.8"
+
+Save and close.
+
+3) docker-compose.yml (PASTE THIS EXACTLY)
+
+ IMPORTANT: YAML must use spaces only, not TAB.
+
+Open docker-compose.yml and paste:
+
 services:
- app:
- build: .
- ports:
- - "5000:5000"
- depends_on:
- - redis
- redis:
- image: redis:alpine
+  app:
+    build: .
+    depends_on: [redis]
+
+  redis:
+    image: redis
+    volumes: [redis-data:/data]
+
+volumes:
+  redis-data:
+
+ Save and close.
+
+ 4) Run Docker Compose Build + Up (Same as Screenshot)
+docker-compose up --build
 
 
-Step 6: Run + verify
-docker compose up -d --build
-docker compose ps
-Open: http://localhost:5000
+ Expected output:
+
+It will create network + volume
+
+Build python image
+
+Run redis container
+
+Run app container
+
+It prints:
+
+Count : 1
+
+
+Run again (optional):
+
+docker-compose up --build
+
+
+Then output increments:
+
+Count : 2
+
+ If you get YAML error (same as screenshot)
+
+Error:
+
+found character '\t' that cannot start any token
+
+Fix:
+
+Open file:
+
+gedit docker-compose.yml
+
+
+Remove TAB spaces (press Backspace)
+
+Use only spaces
+
+Save
+Then run again:
+
+docker-compose up --build
+
+ Stop Containers (Optional)
+
+Press:
+
+CTRL + C
+
+
+Then run:
+
+docker-compose down
+
+
 
 
 
