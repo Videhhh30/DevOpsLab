@@ -128,7 +128,7 @@ index.html content (FULL)
 
 Step 3: Create Dockerfile (FULL)
 nano Dockerfile
-FROM nginx:alpine
+FROM nginx:latest
 COPY index.html /usr/share/nginx/html/index.html
 EXPOSE 80
 
