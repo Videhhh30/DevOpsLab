@@ -62,46 +62,93 @@ QUESTION 2: Jenkins CI (Freestyle Job) – Simple Steps
 Aim
 Jenkins pulls website code from GitHub and triggers build automatically on push.
 
-Step 1: Install Jenkins (simple)
+# ================================
+# CONTINUOUS INTEGRATION USING JENKINS
+# UBUNTU + GITHUB (FULL CODE FORMAT)
+# ================================
+
+# -------- STEP 1: INSTALL JAVA --------
+sudo apt update
+sudo apt install openjdk-11-jdk -y
+java -version
+
+# -------- STEP 2: INSTALL JENKINS --------
+curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
+/usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+https://pkg.jenkins.io/debian binary/ | sudo tee \
+/etc/apt/sources.list.d/jenkins.list > /dev/null
+
 sudo apt update
 sudo apt install jenkins -y
-sudo systemctl enable --now jenkins
 
-Step 2: Open Jenkins
-Open browser:
-http://localhost:8080
-Get admin password:
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo systemctl status jenkins
+
+# -------- STEP 3: GET JENKINS PASSWORD --------
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
-Step 3: Create Freestyle Job
-Dashboard → New Item → Freestyle project Name: student-portal-ci
+# Open browser and complete setup:
+# URL: http://localhost:8080
+# Paste password → Install Suggested Plugins → Create Admin User
 
-Step 4: Configure Git
-Job → Configure:
-Source Code Management → Git
-Repository URL: https://github.com/<username>/<repo>.git
-Branch: */main
+# -------- STEP 4: CREATE STUDENT PORTAL WEBSITE --------
+mkdir student-portal
+cd student-portal
 
-Step 5: Auto Trigger
-Build Triggers:
-✓ GitHub hook trigger for GITScm polling
+cat <<EOF > index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Portal</title>
+</head>
+<body>
+    <h1>Welcome to Student Portal</h1>
+    <p>This is the college student portal website.</p>
+</body>
+</html>
+EOF
 
-Step 6: GitHub Webhook
-GitHub Repo → Settings → Webhooks → Add webhook
-Payload URL: http://<your-ip>:8080/github-webhook/
-Content type: application/json
-Events: Just the push event
-Save webhook.
+# -------- STEP 5: PUSH WEBSITE TO GITHUB --------
+# (Make sure you already created an empty GitHub repo)
 
-Step 7: Test
-Make a small change in HTML:
-Example: change heading text.
-Then push:
+git init
 git add .
-git commit -m "Updated HTML"
-git push origin main
-Result: Jenkins starts build automatically
+git commit -m "Initial student portal website"
+git branch -M main
+git remote add origin https://github.com/USERNAME/student-portal.git
+git push -u origin main
 
+# -------- STEP 6: CONFIGURE JENKINS FREESTYLE JOB --------
+# Jenkins Dashboard → New Item
+# Name: student-portal-ci
+# Type: Freestyle Project
+
+# Source Code Management:
+# Git
+# Repository URL: https://github.com/USERNAME/student-portal.git
+
+# Build Triggers:
+# ☑ GitHub hook trigger for GITScm polling
+
+# Build Step:
+# Execute Shell:
+# cat index.html
+
+# Save the Job
+
+# -------- STEP 7: MAKE CHANGE TO HTML (CI TEST) --------
+sed -i 's/college student portal website/UPDATED student portal website/' index.html
+
+git add index.html
+git commit -m "Updated homepage content"
+git push origin main
+
+# RESULT:
+# GitHub push → Jenkins automatically triggers new build
+# Build console shows updated HTML output
 
 
 
